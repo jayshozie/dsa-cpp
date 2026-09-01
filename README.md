@@ -6,7 +6,7 @@ some data structures and algorithms in C++.
 # Prerequisites
 
 1. GNUMake
-2. A C Compiler
+2. A C++ Compiler
 
 # Build
 
