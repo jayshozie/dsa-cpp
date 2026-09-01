@@ -30,8 +30,8 @@ BO = \033[1m
 RS = \033[0m
 
 help:
-    @echo -e "$(M)$(BO)Usage:$(RS)"
-    @echo -e "   $(C)$(BO)make static$(RS)         $(B)$(BO)Build a static version of the library$(RS)"
-    @echo -e "   $(C)$(BO)make shared$(RS)         $(B)$(BO)Build a shared version of the library$(RS)"
+	@echo -e "$(M)$(BO)Usage:$(RS)"
+	@echo -e "   $(C)$(BO)make static$(RS)         $(B)$(BO)Build a static version of the library$(RS)"
+	@echo -e "   $(C)$(BO)make shared$(RS)         $(B)$(BO)Build a shared version of the library$(RS)"
 	@echo -e "   $(C)$(BO)make test$(RS)           $(B)$(BO)Run all test suites$(RS)"
-    @echo -e "   $(C)$(BO)make help$(RS)           $(B)$(BO)Print this message$(RS)"
+	@echo -e "   $(C)$(BO)make help$(RS)           $(B)$(BO)Print this message$(RS)"
