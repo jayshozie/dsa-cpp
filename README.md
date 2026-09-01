@@ -1,7 +1,7 @@
-# Data Structures and Algorithms in C
+# Data Structures and Algorithms in C++
 
 This is a joint project with [terra](https://github.com/terra2o), implementing
-some data structures and algorithms in C.
+some data structures and algorithms in C++.
 
 # Prerequisites
 
@@ -13,8 +13,8 @@ some data structures and algorithms in C.
 First, you need to decide whether you want the static version or the shared
 version.
 ```bash
-~/ $ git clone git@github.com:jayshozie/dsa-c
-~/ $ cd dsa-c
+~/ $ git clone git@github.com:jayshozie/dsa-cpp
+~/ $ cd dsa-cpp
 # Shared Library (dsa.so) (Smaller)
 ~/dsa-c $ make shared
 # Static Library (dsa.a) (Bigger, but contained)
