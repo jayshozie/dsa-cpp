@@ -44,9 +44,10 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     enable_testing()
     # source file discovery
     file(GLOB_RECURSE DSA_TEST_SOURCES CONFIGURE_DEPENDS "tests/*.cpp")
-
-    # building
-    add_executable(dsa-cpp-tests ${DSA_TEST_SOURCES})
-    target_link_libraries(dsa-cpp-tests PRIVATE dsa-cpp-lib)
-    add_test(NAME all-tests COMMAND dsa-cpp-tests)
+	if(DSA_TEST_SOURCES)
+		# building
+		add_executable(dsa-cpp-tests ${DSA_TEST_SOURCES})
+		target_link_libraries(dsa-cpp-tests PRIVATE dsa-cpp-lib)
+		add_test(NAME all-tests COMMAND dsa-cpp-tests)
+	endif()
 endif()
