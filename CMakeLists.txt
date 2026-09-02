@@ -29,14 +29,14 @@ project(
 # source file discovery
 file(GLOB_RECURSE DSA_MODULE_SOURCES CONFIGURE_DEPENDS "src/*.cppm")
 # library definition
-add_library(dsa-cpp-lib)
-target_sources(dsa-cpp-lib
+add_library(dsa-cpp)
+target_sources(dsa-cpp
     PUBLIC
     FILE_SET CXX_MODULES TYPE CXX_MODULES
     BASE_DIRS src
     FILES ${DSA_MODULE_SOURCES} # automated list injection
 )
-target_compile_features(dsa-cpp-lib PUBLIC cxx_std_23)
+target_compile_features(dsa-cpp PUBLIC cxx_std_23)
 
 # ---------------------------------- tests ----------------------------------- #
 # built only internally
@@ -47,7 +47,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 	if(DSA_TEST_SOURCES)
 		# building
 		add_executable(dsa-cpp-tests ${DSA_TEST_SOURCES})
-		target_link_libraries(dsa-cpp-tests PRIVATE dsa-cpp-lib)
+		target_link_libraries(dsa-cpp-tests PRIVATE dsa-cpp)
 		add_test(NAME all-tests COMMAND dsa-cpp-tests)
 	endif()
 endif()

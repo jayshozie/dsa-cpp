@@ -27,6 +27,7 @@ Checks: >
   -readability-magic-numbers,
   clang-analyzer-*,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+  -cppcoreguidelines-avoid-c-arrays
 
 WarningsAsErrors: '*'
 ...

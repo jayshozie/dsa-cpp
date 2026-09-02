@@ -15,5 +15,17 @@
 				"CMAKE_CXX_STANDARD_REQUIRED": "ON"
 			}
 		}
-	]
+	],
+    "testPresets": [
+        {
+            "name": "dev",
+            "configurePreset": "dev",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        }
+    ]
 }
