@@ -106,10 +106,24 @@ public:
 	}
 
 	// move constructor
-	DynamicArray(DynamicArray &&rhs) noexcept = default;
+	DynamicArray(DynamicArray &&rhs) noexcept :
+		count(std::exchange(rhs.count, 0)),
+		capacity(std::exchange(rhs.capacity, 1)),
+		items(std::move(rhs.items))
+	{
+	}
 
 	// move assignment operator
-	DynamicArray &operator=(DynamicArray &&rhs) noexcept = default;
+	DynamicArray &operator=(DynamicArray &&rhs) noexcept
+	{
+		if (this == &rhs) { // self-assignment
+			return *this;
+		}
+		this->count = std::exchange(rhs.count, 0);
+		this->capacity = std::exchange(rhs.capacity, 1);
+		this->items = std::move(rhs.items);
+		return *this;
+	}
 
 	// getters
 	[[nodiscard]] size_t getLength() const
