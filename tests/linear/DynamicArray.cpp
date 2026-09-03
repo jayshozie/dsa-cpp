@@ -33,12 +33,13 @@ int main()
 	uint_fast64_t random1 = std::rand();
 	arr.pushBack(random1);
 	assert(random1 == arr.get(0));
-
 	arr.popBack();
+
 	const uint_fast64_t random2 = std::rand();
 	arr.pushBack(random2);
 	assert(random2 == arr.get(0));
 	assert(arr.contains(random2));
+	arr.popBack();
 
 	// capacity scaling
 	for (uint_fast8_t i = 0; i < 100; i++) {
