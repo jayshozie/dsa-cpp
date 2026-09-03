@@ -40,7 +40,7 @@ private:
 	}
 	[[nodiscard]] bool tooMuchSpace() const
 	{
-		return (this->count < (this->capacity / 4));
+		return ((this->count < (this->capacity / 4)) && (this->capacity >= 2));
 	}
 
 	void reallocate(size_t capacity)
@@ -162,7 +162,7 @@ public:
 		}
 		T return_val = std::move(this->items[this->count - 1]);
 		this->items[--this->count] = T{};
-		if (this->tooMuchSpace() && (this->capacity >= 2)) {
+		if (this->tooMuchSpace()) {
 			this->shrink();
 		}
 		return return_val;
@@ -193,7 +193,7 @@ public:
 				  this->items.get() + index);	   // destination
 		this->items[this->count - 1] = T{};
 		this->count--;
-		if (this->tooMuchSpace() && (this->capacity >= 2)) {
+		if (this->tooMuchSpace()) {
 			this->shrink();
 		}
 		return return_val;
