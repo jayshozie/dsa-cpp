@@ -30,10 +30,9 @@ export namespace dsa
 template <typename T>
 class DynamicArray {
 private:
-	// T *items;
+	std::unique_ptr<T[]> items = std::make_unique<T[]>(1);
 	std::size_t count = 0;
 	std::size_t capacity = 1;
-	std::unique_ptr<T[]> items = std::make_unique<T[]>(1);
 
 	[[nodiscard]] bool notEnoughSpace() const
 	{
@@ -198,6 +197,24 @@ public:
 			this->shrink();
 		}
 		return return_val;
+	}
+
+	// iterators
+	T *begin()
+	{
+		return (this->items.get());
+	}
+	const T *begin() const
+	{
+		return (this->items.get());
+	}
+	T *end()
+	{
+		return (this->items.get() + this->count);
+	}
+	const T *end() const
+	{
+		return (this->items.get() + this->count);
 	}
 };
 } // namespace dsa
