@@ -44,11 +44,18 @@ target_compile_features(dsa-cpp PUBLIC cxx_std_23)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     enable_testing()
     # source file discovery
-    file(GLOB_RECURSE DSA_TEST_SOURCES CONFIGURE_DEPENDS "tests/*.cpp")
-	if(DSA_TEST_SOURCES)
+    file(GLOB_RECURSE DSA_TEST_SRCS CONFIGURE_DEPENDS "tests/*.cpp")
+	if(DSA_TEST_SRCS)
 		# building
-		add_executable(dsa-cpp-tests ${DSA_TEST_SOURCES})
-		target_link_libraries(dsa-cpp-tests PRIVATE dsa-cpp)
-		add_test(NAME all-tests COMMAND dsa-cpp-tests)
+		foreach(DSA_TEST IN LISTS DSA_TEST_SRCS)
+			# get the test's relative path relative to ./tests/
+			file(RELATIVE_PATH TEST "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${DSA_TEST}")
+			string(REPLACE "/" "-" TEST "${TEST}")
+			string(REPLACE ".cpp" "" TEST "${TEST}")
+
+			add_executable(${TEST} ${DSA_TEST})
+			target_link_libraries(${TEST} PRIVATE dsa-cpp)
+			add_test(NAME ${TEST} COMMAND ${TEST})
+		endforeach()
 	endif()
 endif()
