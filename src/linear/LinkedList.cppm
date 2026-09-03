@@ -193,10 +193,10 @@ public:
 		emplaceFront(std::move(value));
 	}
 
-	std::optional<T> popFront()
+	T popFront()
 	{
 		if (head_ == nullptr) {
-			return std::nullopt;
+			throw std::out_of_range("popFront called on empty list");
 		}
 
 		Node *oldHead = head_;
