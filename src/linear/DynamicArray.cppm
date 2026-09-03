@@ -20,14 +20,13 @@ module;
 #include <cstddef>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 export module dsa.linear.DynamicArray;
 
 export namespace dsa
 {
-#define NOT_ENOUGH_SPACE ((this->count) == (this->capacity))
-#define TOO_MUCH_SPACE ((this->count) < ((this->capacity) / 4))
 template <typename T>
 class DynamicArray {
 private:
@@ -35,6 +34,15 @@ private:
 	std::size_t count = 0;
 	std::size_t capacity = 1;
 	std::unique_ptr<T[]> items = std::make_unique<T[]>(1);
+
+	[[nodiscard]] bool notEnoughSpace() const
+	{
+		return (this->count == this->capacity);
+	}
+	[[nodiscard]] bool tooMuchSpace() const
+	{
+		return (this->count < (this->capacity / 4));
+	}
 
 	void reallocate(size_t capacity)
 	{
@@ -105,15 +113,15 @@ public:
 	DynamicArray &operator=(DynamicArray &&rhs) noexcept = default;
 
 	// getters
-	size_t getLength()
+	[[nodiscard]] size_t getLength() const
 	{
 		return this->count;
 	}
-	size_t getCapacity()
+	[[nodiscard]] size_t getCapacity() const
 	{
 		return this->capacity;
 	}
-	bool isEmpty()
+	[[nodiscard]] bool isEmpty() const
 	{
 		return (this->count == 0);
 	}
@@ -124,10 +132,26 @@ public:
 		}
 		throw std::out_of_range("Index out of bounds.");
 	}
+	const T &get(std::size_t index) const
+	{
+		if (index < this->count) {
+			return this->items[index];
+		}
+		throw std::out_of_range("Index out of bounds.");
+	}
+	[[nodiscard]] bool contains(const T &value) const
+	{
+		for (size_t i = 0; i < this->count; i++) {
+			if (this->items[i] == value) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	void pushBack(T value)
 	{
-		if (this->capacity == this->count) {
+		if (this->notEnoughSpace()) {
 			this->grow();
 		}
 		this->items[this->count++] = std::move(value);
@@ -139,37 +163,41 @@ public:
 		}
 		T return_val = std::move(this->items[this->count - 1]);
 		this->items[--this->count] = T{};
-		if (TOO_MUCH_SPACE && (this->capacity >= 2)) {
+		if (this->tooMuchSpace() && (this->capacity >= 2)) {
 			this->shrink();
 		}
 		return return_val;
 	}
 
-	// void insertAt(T value, std::size_t index)
-	// {
-	// 	if (NOT_ENOUGH_SPACE) {
-	// 		this->grow();
-	// 	}
-	//
-	// }
-
-	/*
-	 * public:
-	 * -------
-	 * getLength() // DONE
-	 * getCapacity() // DONE
-	 * isEmpty() // DONE
-	 * get(index) // DONE
-	 * pushBack(value)
-	 * popBack()
-	 * insertAt(index, value) // may be removed
-	 * removeAt(index, value) // may be removed
-	 * contains(value)
-	 *
-	 * private:
-	 * --------
-	 * grow() // double the capacity
-	 * shrink() // halve the capacity
-	 */
+	void insertAt(T value, std::size_t index)
+	{
+		if (index > this->count) {
+			throw std::out_of_range("Index out of bounds.");
+		}
+		if (this->notEnoughSpace()) {
+			this->grow();
+		}
+		std::move_backward(this->items.get() + index,		// first pointer
+						   this->items.get() + this->count, // last pointer
+						   this->items.get() + this->count + 1); // destination
+		this->items[index] = std::move(value);
+		this->count++;
+	}
+	T removeAt(std::size_t index)
+	{
+		if (index >= this->count) {
+			throw std::out_of_range("Index out of bounds");
+		}
+		T return_val = std::move(this->items[index]);
+		std::move(this->items.get() + index + 1,   // first pointer
+				  this->items.get() + this->count, // last pointer
+				  this->items.get() + index);	   // destination
+		this->items[this->count - 1] = T{};
+		this->count--;
+		if (this->tooMuchSpace() && (this->capacity >= 2)) {
+			this->shrink();
+		}
+		return return_val;
+	}
 };
 } // namespace dsa
