@@ -19,10 +19,9 @@ module;
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
-#include <memory> // std::unique<>()
-#include <optional>
 #include <type_traits>
 #include <utility>
+#include <stdexcept>
 
 export module dsa.linear.LinkedList;
 
