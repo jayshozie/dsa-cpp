@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
 #include <numbers>
 #include <stdexcept>
 import dsa.linear.DynamicArray;
@@ -26,14 +27,20 @@ int main()
 {
 	// initialization
 	dsa::DynamicArray<uint_fast64_t> arr;
+	// isEmpty
 	assert(arr.isEmpty());
+	// getCapacity - default
 	assert(arr.getCapacity() == 1);
 
 	// core i/o
 	uint_fast64_t random1 = std::rand();
+	// pushBack
 	arr.pushBack(random1);
+	// get
 	assert(random1 == arr.get(0));
+	// popBack
 	arr.popBack();
+	assert(arr.isEmpty());
 
 	const uint_fast64_t random2 = std::rand();
 	arr.pushBack(random2);
@@ -49,8 +56,13 @@ int main()
 	assert(!arr.isEmpty());
 
 	// arbitrary position mutation
+	// insertAt
 	arr.insertAt(random1, 69);
 	assert(random1 == arr.get(69));
+	// front
+	assert(arr.front() == arr.get(0));
+	// back
+	assert(arr.back() == arr.get(arr.getLength() - 1));
 
 	uint_fast64_t random3 = arr.removeAt(69);
 	assert(random3 == random1);
@@ -100,9 +112,13 @@ int main()
 	size_t iter_idx = 0;
 
 	for (int val : iter_arr) {
+		// iterator check
 		assert(val == expected[iter_idx]);
+		// operator[]
+		assert(iter_arr[iter_idx] == expected[iter_idx]);
 		iter_idx++;
 	}
+	// whether it stops at the correct time
 	assert(iter_idx == 3);
 
 	// copy semantics (deep copy verification)
@@ -135,6 +151,15 @@ int main()
 
 	assert(arr_move_assign.getLength() == expected_length);
 	assert(arr_assign.getLength() == 0);
+
+	// reserve
+	std::size_t MiB = 1024 * 1024;
+	arr.reserve(MiB);
+	assert(arr.getCapacity() == MiB);
+
+	// clear check
+	arr.clear();
+	assert(arr.isEmpty());
 
 	return 0;
 }
