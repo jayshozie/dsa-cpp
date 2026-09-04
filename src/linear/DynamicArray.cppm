@@ -30,10 +30,9 @@ export namespace dsa
 template <typename T>
 class DynamicArray {
 private:
-	// T *items;
+	std::unique_ptr<T[]> items = std::make_unique<T[]>(1);
 	std::size_t count = 0;
 	std::size_t capacity = 1;
-	std::unique_ptr<T[]> items = std::make_unique<T[]>(1);
 
 	[[nodiscard]] bool notEnoughSpace() const
 	{
@@ -41,13 +40,13 @@ private:
 	}
 	[[nodiscard]] bool tooMuchSpace() const
 	{
-		return (this->count < (this->capacity / 4));
+		return ((this->count < (this->capacity / 4)) && (this->capacity >= 2));
 	}
 
-	void reallocate(size_t capacity)
+	void reallocate(std::size_t capacity)
 	{
 		std::unique_ptr<T[]> items = std::make_unique<T[]>(capacity);
-		for (size_t i = 0; i < this->count; i++) {
+		for (std::size_t i = 0; i < this->count; i++) {
 			items[i] = std::move(this->items[i]);
 		}
 		this->items = std::move(items);
@@ -85,7 +84,7 @@ public:
 		capacity(rhs.capacity),
 		items(std::make_unique<T[]>(rhs.capacity))
 	{ // wip
-		for (size_t i = 0; i < rhs.count; i++) {
+		for (std::size_t i = 0; i < rhs.count; i++) {
 			this->items[i] = rhs.items[i];
 		}
 	}
@@ -97,7 +96,7 @@ public:
 			return *this;
 		}
 		std::unique_ptr<T[]> tmp = std::make_unique<T[]>(rhs.capacity);
-		for (size_t i = 0; i < rhs.count; i++) {
+		for (std::size_t i = 0; i < rhs.count; i++) {
 			tmp[i] = rhs.items[i];
 		}
 		this->count = rhs.count;
@@ -107,17 +106,41 @@ public:
 	}
 
 	// move constructor
-	DynamicArray(DynamicArray &&rhs) noexcept = default;
+	DynamicArray(DynamicArray &&rhs) noexcept :
+		count(std::exchange(rhs.count, 0)),
+		capacity(std::exchange(rhs.capacity, 1)),
+		items(std::move(rhs.items))
+	{
+	}
 
 	// move assignment operator
-	DynamicArray &operator=(DynamicArray &&rhs) noexcept = default;
+	DynamicArray &operator=(DynamicArray &&rhs) noexcept
+	{
+		if (this == &rhs) { // self-assignment
+			return *this;
+		}
+		this->count = std::exchange(rhs.count, 0);
+		this->capacity = std::exchange(rhs.capacity, 1);
+		this->items = std::move(rhs.items);
+		return *this;
+	}
+
+	// memory unsafe, but fast
+	T &operator[](std::size_t index)
+	{
+		return this->items[index];
+	}
+	const T &operator[](std::size_t index) const
+	{
+		return this->items[index];
+	}
 
 	// getters
-	[[nodiscard]] size_t getLength() const
+	[[nodiscard]] std::size_t getLength() const
 	{
 		return this->count;
 	}
-	[[nodiscard]] size_t getCapacity() const
+	[[nodiscard]] std::size_t getCapacity() const
 	{
 		return this->capacity;
 	}
@@ -125,6 +148,8 @@ public:
 	{
 		return (this->count == 0);
 	}
+
+	// memory safe, but slow
 	T &get(std::size_t index)
 	{
 		if (index < this->count) {
@@ -139,14 +164,49 @@ public:
 		}
 		throw std::out_of_range("Index out of bounds.");
 	}
+
+	T &front()
+	{
+		return this->items[0];
+	}
+	const T &front() const
+	{
+		return this->items[0];
+	}
+	T &back()
+	{
+		return this->items[this->count - 1];
+	}
+	const T &back() const
+	{
+		return this->items[this->count - 1];
+	}
+
 	[[nodiscard]] bool contains(const T &value) const
 	{
-		for (size_t i = 0; i < this->count; i++) {
+		for (std::size_t i = 0; i < this->count; i++) {
 			if (this->items[i] == value) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	void clear()
+	{
+		std::unique_ptr<T[]> tmp = std::make_unique<T[]>(1);
+		this->count = 0;
+		this->capacity = 1;
+		std::swap(this->items, tmp);
+	}
+
+	// minimum capacity guarantee
+	void reserve(std::size_t capacity)
+	{
+		if (capacity <= this->capacity) {
+			return;
+		}
+		this->reallocate(capacity);
 	}
 
 	void pushBack(T value)
@@ -163,7 +223,7 @@ public:
 		}
 		T return_val = std::move(this->items[this->count - 1]);
 		this->items[--this->count] = T{};
-		if (this->tooMuchSpace() && (this->capacity >= 2)) {
+		if (this->tooMuchSpace()) {
 			this->shrink();
 		}
 		return return_val;
@@ -186,7 +246,7 @@ public:
 	T removeAt(std::size_t index)
 	{
 		if (index >= this->count) {
-			throw std::out_of_range("Index out of bounds");
+			throw std::out_of_range("Index out of bounds.");
 		}
 		T return_val = std::move(this->items[index]);
 		std::move(this->items.get() + index + 1,   // first pointer
@@ -194,10 +254,28 @@ public:
 				  this->items.get() + index);	   // destination
 		this->items[this->count - 1] = T{};
 		this->count--;
-		if (this->tooMuchSpace() && (this->capacity >= 2)) {
+		if (this->tooMuchSpace()) {
 			this->shrink();
 		}
 		return return_val;
+	}
+
+	// iterators
+	T *begin()
+	{
+		return (this->items.get());
+	}
+	const T *begin() const
+	{
+		return (this->items.get());
+	}
+	T *end()
+	{
+		return (this->items.get() + this->count);
+	}
+	const T *end() const
+	{
+		return (this->items.get() + this->count);
 	}
 };
 } // namespace dsa
