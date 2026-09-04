@@ -1,102 +1,230 @@
-// dsa-cpp - An implementation of some data structures and algorithms in C++.
-// Copyright (C)  2026      Emir Baha YILDIRIM <jayshozie@gmail.com>
-// Copyright (C)  2026      terra2o <terra2o@protonmail.com>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#include <cassert>
 #include <string>
+#include <utility>
+#include <memory>
+#include <stdexcept>
+#include <cassert>
 
 import dsa.linear.LinkedList;
 
-void test_constructors()
-{
-	dsa::LinkedList<int> empty_list;
-	assert(empty_list.empty());
-	assert(empty_list.size() == 0);
+namespace {
 
-	dsa::LinkedList<int> list{1, 2, 3, 4, 5};
-	assert(!list.empty());
-	assert(list.size() == 5);
-	assert(list.front() == 1);
+struct Point {
+	int x{0};
+	int y{0};
+};
+
+void testDefaultConstructionAndCapacity()
+{
+	dsa::LinkedList<int> list;
+	assert(list.empty());
+	assert(list.size() == 0);
+	assert(list.begin() == list.end());
 }
 
-void test_push_and_pop()
+void testInitializerListAndAccess()
+{
+	dsa::LinkedList<int> list{10, 20, 30};
+	assert(!list.empty());
+	assert(list.size() == 3);
+	assert(list.front() == 10);
+	assert(list.back() == 30);
+
+	list.front() = 15;
+	list.back() = 35;
+	assert(list.front() == 15);
+	assert(list.back() == 35);
+
+	const dsa::LinkedList<int> constList{1, 2, 3};
+	assert(constList.front() == 1);
+	assert(constList.back() == 3);
+}
+
+void testPushAndEmplace()
 {
 	dsa::LinkedList<std::string> list;
 
-	list.pushFront("world");
+	list.pushBack("world");
 	list.pushFront("hello");
-
 	assert(list.size() == 2);
 	assert(list.front() == "hello");
+	assert(list.back() == "world");
 
-	auto popped = list.popFront();
-	assert(popped.has_value());
-	assert(*popped == "hello");
-	assert(list.size() == 1);
-	assert(list.front() == "world");
+	std::string s1 = "foo";
+	std::string s2 = "bar";
+	list.pushFront(std::move(s1));
+	list.pushBack(std::move(s2));
+	assert(list.front() == "foo");
+	assert(list.back() == "bar");
+	assert(list.size() == 4);
 
-	list.popFront();
-	assert(list.empty());
-
-	auto empty_pop = list.popFront();
-	assert(!empty_pop.has_value());
+	list.emplaceFront("first");
+	list.emplaceBack("last");
+	assert(list.front() == "first");
+	assert(list.back() == "last");
+	assert(list.size() == 6);
 }
 
-void test_copy_and_move()
-{
-	dsa::LinkedList<int> original{10, 20, 30};
-
-	dsa::LinkedList<int> copy(original);
-	assert(copy.size() == 3);
-	assert(copy.front() == 10);
-
-	dsa::LinkedList<int> moved(std::move(copy));
-	assert(moved.size() == 3);
-	assert(moved.front() == 10);
-
-	dsa::LinkedList<int> assigned;
-	assigned = original;
-	assert(assigned.size() == 3);
-
-	dsa::LinkedList<int> move_assigned;
-	move_assigned = std::move(assigned);
-	assert(move_assigned.size() == 3);
-}
-
-void test_iteration()
+void testPopOperationsAndExceptions()
 {
 	dsa::LinkedList<int> list{1, 2, 3};
 
-	int expected = 1;
-	for (int val : list) {
-		assert(val == expected++);
+	assert(list.popFront() == 1);
+	assert(list.size() == 2);
+
+	assert(list.popBack() == 3);
+	assert(list.size() == 1);
+
+	assert(list.popFront() == 2);
+	assert(list.empty());
+
+	try {
+		(void)list.popFront();
+		assert(false);
+	} catch (const std::out_of_range &) {
 	}
 
-	const auto &const_ref = list;
-	auto it = const_ref.cbegin();
-	assert(*it == 1);
-	assert(it == list.begin());
+	try {
+		(void)list.popBack();
+		assert(false);
+	} catch (const std::out_of_range &) {
+	}
 }
+
+void testCopyAndMoveSemantics()
+{
+	dsa::LinkedList<int> orig{1, 2, 3};
+
+	dsa::LinkedList<int> copyConstructed(orig);
+	assert(copyConstructed == orig);
+
+	dsa::LinkedList<int> copyAssigned;
+	copyAssigned = orig;
+	assert(copyAssigned == orig);
+
+	dsa::LinkedList<int> moveSrc{4, 5, 6};
+	dsa::LinkedList<int> moveConstructed(std::move(moveSrc));
+	assert(moveConstructed.size() == 3);
+	assert(moveConstructed.front() == 4);
+	assert(moveSrc.empty());
+
+	dsa::LinkedList<int> moveDst;
+	moveDst = std::move(moveConstructed);
+	assert(moveDst.size() == 3);
+	assert(moveDst.front() == 4);
+	assert(moveConstructed.empty());
+}
+
+void testIteratorsAndOperators()
+{
+	dsa::LinkedList<Point> points{{10, 20}, {30, 40}};
+
+	auto it = points.begin();
+	assert(it->x == 10 && it->y == 20);
+
+	auto oldIt = it++;
+	assert(oldIt->x == 10);
+	assert(it->x == 30);
+
+	dsa::LinkedList<int> list{10, 20, 30, 40};
+
+	int expected = 10;
+	for (auto iter = list.begin(); iter != list.end(); ++iter) {
+		assert(*iter == expected);
+		expected += 10;
+	}
+
+	// verifying --end() steps back to tail node
+	auto endIt = list.end();
+	--endIt;
+	assert(*endIt == 40);
+	endIt--;
+	assert(*endIt == 30);
+
+	for (auto &val : list) {
+		val *= 2;
+	}
+	assert(list.front() == 20);
+	assert(list.back() == 80);
+
+	// implicit conversion from mutable to const iterator
+	dsa::LinkedList<int>::ConstIterator cit = list.begin();
+	assert(*cit == 20);
+}
+
+void testReverseIterators()
+{
+	dsa::LinkedList<int> list{1, 2, 3, 4};
+
+	int expected = 4;
+	for (auto rit = list.rbegin(); rit != list.rend(); ++rit) {
+		assert(*rit == expected);
+		--expected;
+	}
+
+	const dsa::LinkedList<int> constList{10, 20};
+	auto crit = constList.crbegin();
+	assert(*crit == 20);
+	++crit;
+	assert(*crit == 10);
+}
+
+void testComparisons()
+{
+	dsa::LinkedList<int> a{1, 2, 3};
+	dsa::LinkedList<int> b{1, 2, 3};
+	dsa::LinkedList<int> c{1, 2, 4};
+	dsa::LinkedList<int> d{1, 2};
+
+	assert(a == b);
+	assert(a != c);
+	assert((a <=> b) == 0);
+	assert((a <=> c) < 0);
+	assert((a <=> d) > 0);
+}
+
+void testMoveOnlyTypes()
+{
+	dsa::LinkedList<std::unique_ptr<int>> list;
+
+	list.pushBack(std::make_unique<int>(10));
+	list.emplaceFront(std::make_unique<int>(5));
+
+	assert(*list.front() == 5);
+	assert(*list.back() == 10);
+
+	auto ptr = list.popFront();
+	assert(*ptr == 5);
+	assert(list.size() == 1);
+}
+
+void testClearAndSwap()
+{
+	dsa::LinkedList<int> list1{1, 2, 3};
+	dsa::LinkedList<int> list2{10, 20};
+
+	list1.swap(list2);
+	assert(list1.size() == 2 && list1.front() == 10);
+	assert(list2.size() == 3 && list2.front() == 1);
+
+	list1.clear();
+	assert(list1.empty());
+	assert(list1.begin() == list1.end());
+}
+
+} // namespace
 
 int main()
 {
-	test_constructors();
-	test_push_and_pop();
-	test_copy_and_move();
-	test_iteration();
+	testDefaultConstructionAndCapacity();
+	testInitializerListAndAccess();
+	testPushAndEmplace();
+	testPopOperationsAndExceptions();
+	testCopyAndMoveSemantics();
+	testIteratorsAndOperators();
+	testReverseIterators();
+	testComparisons();
+	testMoveOnlyTypes();
+	testClearAndSwap();
 
 	return 0;
 }

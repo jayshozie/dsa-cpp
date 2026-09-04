@@ -1,27 +1,28 @@
-// dsa-cpp - An implementation of some data structures and algorithms in C++.
-// Copyright (C)  2026	  Emir Baha YILDIRIM <jayshozie@gmail.com>
-// Copyright (C)  2026	  terra2o <terra2o@protonmail.com>
+// dsa-cpp - an implementation of some data structures and algorithms in C++.
+// copyright (C) 2026 Emir Baha YILDIRIM <jayshozie@gmail.com>
+// copyright (C) 2026 terra2o <terra2o@protonmail.com>
 //
-// This program is free software: you can redistribute it and/or modify
+// this program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
+// this program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	    See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// you should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 module;
 
+#include <compare>
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
-#include <stdexcept>
 
 export module dsa.linear.LinkedList;
 
@@ -34,48 +35,53 @@ private:
 	struct Node {
 		T data;
 		Node *next{nullptr};
+		Node *prev{nullptr};
 
 		template <typename... Args>
-		Node(Node *nextPtr, Args &&...args) :
+		Node(Node *nextPtr, Node *prevPtr, Args &&...args) :
 			data(std::forward<Args>(args)...),
-			next(nextPtr)
+			next(nextPtr),
+			prev(prevPtr)
 		{
 		}
 	};
 
 	Node *head_{nullptr};
+	Node *tail_{nullptr};
 	std::size_t size_{0};
 
-	// implements both iterator and const_iterator to avoid duplicating logic.
+	// single iterator implementation handling both const and non-const variants
 	template <bool IsConst>
 	class IteratorImpl {
 	private:
 		using NodePtr = std::conditional_t<IsConst, const Node *, Node *>;
-		NodePtr current_;
+		NodePtr current_{nullptr};
+		NodePtr tail_{nullptr};
 
 		template <bool>
 		friend class IteratorImpl;
 
 	public:
-		using iterator_category = std::forward_iterator_tag;
+		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = T;
 		using difference_type = std::ptrdiff_t;
 		using pointer = std::conditional_t<IsConst, const T *, T *>;
 		using reference = std::conditional_t<IsConst, const T &, T &>;
 
-		IteratorImpl() : current_(nullptr)
+		IteratorImpl() = default;
+
+		explicit IteratorImpl(NodePtr node, NodePtr tail = nullptr) :
+			current_(node),
+			tail_(tail)
 		{
 		}
 
-		explicit IteratorImpl(NodePtr node) : current_(node)
-		{
-		}
-
-		// implicit conversion from iterator to const_iterator (one-way).
+		// allows implicit conversion from mutable to const iterator
 		template <bool OtherIsConst>
 			requires(IsConst && !OtherIsConst)
 		IteratorImpl(const IteratorImpl<OtherIsConst> &other) :
-			current_(other.current_)
+			current_(other.current_),
+			tail_(other.tail_)
 		{
 		}
 
@@ -101,12 +107,26 @@ private:
 			return temp;
 		}
 
-		// cross-comparison enables comparing non-const iterators against const
-		// iterators (e.g. it == cend()).
-		template <bool OtherIsConst>
-		[[nodiscard]] friend bool
-			operator==(const IteratorImpl &lhs,
-					   const IteratorImpl<OtherIsConst> &rhs) noexcept
+		IteratorImpl &operator--()
+		{
+			if (current_) {
+				current_ = current_->prev;
+			} else {
+				current_ = tail_;
+			}
+			return *this;
+		}
+
+		IteratorImpl operator--(int)
+		{
+			IteratorImpl temp = *this;
+			--(*this);
+			return temp;
+		}
+
+		// relies on implicit conversion from mutable to const iterator
+		[[nodiscard]] friend bool operator==(const IteratorImpl &lhs,
+						     const IteratorImpl &rhs) noexcept
 		{
 			return lhs.current_ == rhs.current_;
 		}
@@ -115,15 +135,15 @@ private:
 public:
 	using Iterator = IteratorImpl<false>;
 	using ConstIterator = IteratorImpl<true>;
+	using ReverseIterator = std::reverse_iterator<Iterator>;
+	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
 	LinkedList() = default;
 
-	// iterating in reverse preserves the exact ordering of elements when using
-	// pushFront.
 	LinkedList(std::initializer_list<T> list)
 	{
-		for (auto it = std::rbegin(list); it != std::rend(list); ++it) {
-			pushFront(*it);
+		for (const auto &item : list) {
+			pushBack(item);
 		}
 	}
 
@@ -148,6 +168,7 @@ public:
 
 	LinkedList(LinkedList &&other) noexcept :
 		head_(std::exchange(other.head_, nullptr)),
+		tail_(std::exchange(other.tail_, nullptr)),
 		size_(std::exchange(other.size_, 0))
 	{
 	}
@@ -159,9 +180,47 @@ public:
 		return *this;
 	}
 
+	[[nodiscard]] auto operator<=>(const LinkedList &rhs) const
+		requires std::three_way_comparable<T>
+	{
+		auto it1 = begin();
+		auto it2 = rhs.begin();
+
+		while (it1 != end() && it2 != rhs.end()) {
+			if (auto cmp = *it1 <=> *it2; cmp != 0) {
+				return cmp;
+			}
+			++it1;
+			++it2;
+		}
+
+		return size_ <=> rhs.size_;
+	}
+
+	[[nodiscard]] bool operator==(const LinkedList &rhs) const
+	{
+		if (size_ != rhs.size_) {
+			return false;
+		}
+
+		auto it1 = begin();
+		auto it2 = rhs.begin();
+
+		while (it1 != end()) {
+			if (!(*it1 == *it2)) {
+				return false;
+			}
+			++it1;
+			++it2;
+		}
+
+		return true;
+	}
+
 	void swap(LinkedList &other) noexcept
 	{
 		std::swap(head_, other.head_);
+		std::swap(tail_, other.tail_);
 		std::swap(size_, other.size_);
 	}
 
@@ -174,13 +233,41 @@ public:
 		return head_->data;
 	}
 
+	T &back()
+	{
+		return tail_->data;
+	}
+	const T &back() const
+	{
+		return tail_->data;
+	}
+
 	template <typename... Args>
 	T &emplaceFront(Args &&...args)
 	{
-		// construct node directly with raw pointer
-		head_ = new Node(head_, std::forward<Args>(args)...);
+		Node *newNode = new Node(head_, nullptr, std::forward<Args>(args)...);
+		if (head_) {
+			head_->prev = newNode;
+		} else {
+			tail_ = newNode;
+		}
+		head_ = newNode;
 		++size_;
 		return head_->data;
+	}
+
+	template <typename... Args>
+	T &emplaceBack(Args &&...args)
+	{
+		Node *newNode = new Node(nullptr, tail_, std::forward<Args>(args)...);
+		if (tail_) {
+			tail_->next = newNode;
+		} else {
+			head_ = newNode;
+		}
+		tail_ = newNode;
+		++size_;
+		return tail_->data;
 	}
 
 	void pushFront(const T &value)
@@ -192,18 +279,54 @@ public:
 		emplaceFront(std::move(value));
 	}
 
+	void pushBack(const T &value)
+	{
+		emplaceBack(value);
+	}
+	void pushBack(T &&value)
+	{
+		emplaceBack(std::move(value));
+	}
+
 	T popFront()
 	{
-		if (head_ == nullptr) {
+		if (head_ == nullptr) [[unlikely]] {
 			throw std::out_of_range("popFront called on empty list");
 		}
 
 		Node *oldHead = head_;
-		head_ = head_->next;
-
-		// move data out before cleanup
 		T result = std::move(oldHead->data);
+
+		head_ = head_->next;
+		if (head_) {
+			head_->prev = nullptr;
+		} else {
+			tail_ = nullptr;
+		}
+
 		delete oldHead;
+		--size_;
+
+		return result;
+	}
+
+	T popBack()
+	{
+		if (tail_ == nullptr) [[unlikely]] {
+			throw std::out_of_range("popBack called on empty list");
+		}
+
+		Node *oldTail = tail_;
+		T result = std::move(oldTail->data);
+
+		tail_ = tail_->prev;
+		if (tail_) {
+			tail_->next = nullptr;
+		} else {
+			head_ = nullptr;
+		}
+
+		delete oldTail;
 		--size_;
 
 		return result;
@@ -211,11 +334,14 @@ public:
 
 	void clear()
 	{
-		while (head_) {
-			Node *temp = head_;
-			head_ = head_->next;
-			delete temp;
+		Node *current = head_;
+		while (current) {
+			Node *next = current->next;
+			delete current;
+			current = next;
 		}
+		head_ = nullptr;
+		tail_ = nullptr;
 		size_ = 0;
 	}
 
@@ -230,54 +356,69 @@ public:
 
 	Iterator begin()
 	{
-		return Iterator(head_);
+		return Iterator(head_, tail_);
 	}
 	Iterator end()
 	{
-		return Iterator(nullptr);
+		return Iterator(nullptr, tail_);
 	}
 
 	ConstIterator begin() const
 	{
-		return ConstIterator(head_);
+		return ConstIterator(head_, tail_);
 	}
 	ConstIterator end() const
 	{
-		return ConstIterator(nullptr);
+		return ConstIterator(nullptr, tail_);
 	}
 
 	ConstIterator cbegin() const
 	{
-		return ConstIterator(head_);
+		return ConstIterator(head_, tail_);
 	}
 	ConstIterator cend() const
 	{
-		return ConstIterator(nullptr);
+		return ConstIterator(nullptr, tail_);
+	}
+
+	ReverseIterator rbegin()
+	{
+		return ReverseIterator(end());
+	}
+	ReverseIterator rend()
+	{
+		return ReverseIterator(begin());
+	}
+
+	ConstReverseIterator rbegin() const
+	{
+		return ConstReverseIterator(cend());
+	}
+	ConstReverseIterator rend() const
+	{
+		return ConstReverseIterator(cbegin());
+	}
+
+	ConstReverseIterator crbegin() const
+	{
+		return ConstReverseIterator(cend());
+	}
+	ConstReverseIterator crend() const
+	{
+		return ConstReverseIterator(cbegin());
 	}
 
 private:
-	// basic exception safety: cleans up partially allocated nodes if node
-	// instantiation throws mid-copy.
 	void copyFrom(const LinkedList &other)
 	{
-		if (!other.head_)
-			return;
-
-		head_ = new Node(nullptr, other.head_->data);
-		Node *currentNew = head_;
-		Node *currentOld = other.head_->next;
-
 		try {
-			while (currentOld) {
-				currentNew->next = new Node(nullptr, currentOld->data);
-				currentNew = currentNew->next;
-				currentOld = currentOld->next;
+			for (Node *curr = other.head_; curr != nullptr; curr = curr->next) {
+				emplaceBack(curr->data);
 			}
 		} catch (...) {
 			clear();
 			throw;
 		}
-		size_ = other.size_;
 	}
 };
 
