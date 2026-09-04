@@ -126,7 +126,7 @@ private:
 
 		// relies on implicit conversion from mutable to const iterator
 		[[nodiscard]] friend bool operator==(const IteratorImpl &lhs,
-						     const IteratorImpl &rhs) noexcept
+											 const IteratorImpl &rhs) noexcept
 		{
 			return lhs.current_ == rhs.current_;
 		}

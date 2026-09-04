@@ -6,7 +6,8 @@
 
 import dsa.linear.LinkedList;
 
-namespace {
+namespace
+{
 
 struct Point {
 	int x{0};
