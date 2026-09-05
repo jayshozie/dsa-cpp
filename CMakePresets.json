@@ -8,6 +8,7 @@
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/build/dev",
 			"cacheVariables": {
+				"CMAKE_CXX_COMPILER": "clang++",
 				"CMAKE_CXX_STANDARD": "23",
 				"CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
 				"CMAKE_CXX_EXTENSIONS": "OFF",
