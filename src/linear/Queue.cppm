@@ -57,11 +57,11 @@ public:
 
 	[[nodiscard]] std::size_t getSize() const
 	{
-		return this->items.size();
+		return this->items.getSize();
 	}
 	[[nodiscard]] bool isEmpty() const
 	{
-		return (this->items.size() == 0);
+		return (this->items.getSize() == 0);
 	}
 
 	void clear()
