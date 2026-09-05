@@ -1,9 +1,10 @@
+module;
+
 #include <cstddef>
 #include <stdexcept>
 #include <utility>
 
 export module dsa.linear.Stack;
-
 import dsa.linear.DynamicArray;
 
 export namespace dsa
