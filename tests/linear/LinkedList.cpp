@@ -18,7 +18,7 @@ void testDefaultConstructionAndCapacity()
 {
 	dsa::LinkedList<int> list;
 	assert(list.empty());
-	assert(list.getSize) == 0);
+	assert(list.getSize() == 0);
 	assert(list.begin() == list.end());
 }
 
