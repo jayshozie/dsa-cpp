@@ -18,7 +18,7 @@ void testDefaultConstructionAndCapacity()
 {
 	dsa::LinkedList<int> list;
 	assert(list.empty());
-	assert(list.size() == 0);
+	assert(list.getSize() == 0);
 	assert(list.begin() == list.end());
 }
 
@@ -26,7 +26,7 @@ void testInitializerListAndAccess()
 {
 	dsa::LinkedList<int> list{10, 20, 30};
 	assert(!list.empty());
-	assert(list.size() == 3);
+	assert(list.getSize() == 3);
 	assert(list.front() == 10);
 	assert(list.back() == 30);
 
@@ -46,7 +46,7 @@ void testPushAndEmplace()
 
 	list.pushBack("world");
 	list.pushFront("hello");
-	assert(list.size() == 2);
+	assert(list.getSize() == 2);
 	assert(list.front() == "hello");
 	assert(list.back() == "world");
 
@@ -56,13 +56,13 @@ void testPushAndEmplace()
 	list.pushBack(std::move(s2));
 	assert(list.front() == "foo");
 	assert(list.back() == "bar");
-	assert(list.size() == 4);
+	assert(list.getSize() == 4);
 
 	list.emplaceFront("first");
 	list.emplaceBack("last");
 	assert(list.front() == "first");
 	assert(list.back() == "last");
-	assert(list.size() == 6);
+	assert(list.getSize() == 6);
 }
 
 void testPopOperationsAndExceptions()
@@ -70,10 +70,10 @@ void testPopOperationsAndExceptions()
 	dsa::LinkedList<int> list{1, 2, 3};
 
 	assert(list.popFront() == 1);
-	assert(list.size() == 2);
+	assert(list.getSize() == 2);
 
 	assert(list.popBack() == 3);
-	assert(list.size() == 1);
+	assert(list.getSize() == 1);
 
 	assert(list.popFront() == 2);
 	assert(list.empty());
@@ -104,13 +104,13 @@ void testCopyAndMoveSemantics()
 
 	dsa::LinkedList<int> moveSrc{4, 5, 6};
 	dsa::LinkedList<int> moveConstructed(std::move(moveSrc));
-	assert(moveConstructed.size() == 3);
+	assert(moveConstructed.getSize() == 3);
 	assert(moveConstructed.front() == 4);
 	assert(moveSrc.empty());
 
 	dsa::LinkedList<int> moveDst;
 	moveDst = std::move(moveConstructed);
-	assert(moveDst.size() == 3);
+	assert(moveDst.getSize() == 3);
 	assert(moveDst.front() == 4);
 	assert(moveConstructed.empty());
 }
@@ -195,7 +195,7 @@ void testMoveOnlyTypes()
 
 	auto ptr = list.popFront();
 	assert(*ptr == 5);
-	assert(list.size() == 1);
+	assert(list.getSize() == 1);
 }
 
 void testClearAndSwap()
@@ -204,8 +204,8 @@ void testClearAndSwap()
 	dsa::LinkedList<int> list2{10, 20};
 
 	list1.swap(list2);
-	assert(list1.size() == 2 && list1.front() == 10);
-	assert(list2.size() == 3 && list2.front() == 1);
+	assert(list1.getSize() == 2 && list1.front() == 10);
+	assert(list2.getSize() == 3 && list2.front() == 1);
 
 	list1.clear();
 	assert(list1.empty());
