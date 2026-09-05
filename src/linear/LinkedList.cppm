@@ -345,7 +345,7 @@ public:
 		size_ = 0;
 	}
 
-	[[nodiscard]] std::size_t size() const noexcept
+	[[nodiscard]] std::size_t getSize() const noexcept
 	{
 		return size_;
 	}
