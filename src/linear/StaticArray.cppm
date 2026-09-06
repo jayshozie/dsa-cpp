@@ -18,18 +18,19 @@ module;
 
 #include <cstddef>
 #include <stdexcept>
-export module dsa.linear.CTFixedArray;
+export module dsa.linear.StaticArray;
 
 export namespace dsa
 {
+
 template <typename T, std::size_t Capacity>
-class CTFixedArray {
+class StaticArray {
 private:
 	T items[Capacity]{};
 
 public:
 	// Compile-Time Sized Fixed Array
-	CTFixedArray() = default;
+	StaticArray() = default;
 
 	T &at(std::size_t index)
 	{

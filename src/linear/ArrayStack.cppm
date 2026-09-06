@@ -4,25 +4,26 @@ module;
 #include <stdexcept>
 #include <utility>
 
-export module dsa.linear.Stack;
+export module dsa.linear.ArrayStack;
 import dsa.linear.DynamicArray;
 
 export namespace dsa
 {
+
 template <typename T>
-class Stack {
+class ArrayStack {
 private:
-    DynamicArray<T> container;
+	dsa::DynamicArray<T> container;
 
 public:
-    Stack() = default;
-    ~Stack() = default;
+    ArrayStack() = default;
+    ~ArrayStack() = default;
 
-    Stack(const Stack &rhs) = default;
-    Stack &operator=(const Stack &rhs) = default;
+    ArrayStack(const ArrayStack &rhs) = default;
+    ArrayStack &operator=(const ArrayStack &rhs) = default;
 
-    Stack(Stack &&rhs) noexcept = default;
-    Stack &operator=(Stack &&rhs) noexcept = default;
+    ArrayStack(ArrayStack &&rhs) noexcept = default;
+    ArrayStack &operator=(ArrayStack &&rhs) noexcept = default;
 
     void push(T value)
     {

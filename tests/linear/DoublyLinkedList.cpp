@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <cassert>
 
-import dsa.linear.LinkedList;
+import dsa.linear.DoublyLinkedList;
 
 namespace
 {
@@ -16,7 +16,7 @@ struct Point {
 
 void testDefaultConstructionAndCapacity()
 {
-	dsa::LinkedList<int> list;
+	dsa::DoublyLinkedList<int> list;
 	assert(list.empty());
 	assert(list.getSize() == 0);
 	assert(list.begin() == list.end());
@@ -24,7 +24,7 @@ void testDefaultConstructionAndCapacity()
 
 void testInitializerListAndAccess()
 {
-	dsa::LinkedList<int> list{10, 20, 30};
+	dsa::DoublyLinkedList<int> list{10, 20, 30};
 	assert(!list.empty());
 	assert(list.getSize() == 3);
 	assert(list.front() == 10);
@@ -35,14 +35,14 @@ void testInitializerListAndAccess()
 	assert(list.front() == 15);
 	assert(list.back() == 35);
 
-	const dsa::LinkedList<int> constList{1, 2, 3};
+	const dsa::DoublyLinkedList<int> constList{1, 2, 3};
 	assert(constList.front() == 1);
 	assert(constList.back() == 3);
 }
 
 void testPushAndEmplace()
 {
-	dsa::LinkedList<std::string> list;
+	dsa::DoublyLinkedList<std::string> list;
 
 	list.pushBack("world");
 	list.pushFront("hello");
@@ -67,7 +67,7 @@ void testPushAndEmplace()
 
 void testPopOperationsAndExceptions()
 {
-	dsa::LinkedList<int> list{1, 2, 3};
+	dsa::DoublyLinkedList<int> list{1, 2, 3};
 
 	assert(list.popFront() == 1);
 	assert(list.getSize() == 2);
@@ -93,22 +93,22 @@ void testPopOperationsAndExceptions()
 
 void testCopyAndMoveSemantics()
 {
-	dsa::LinkedList<int> orig{1, 2, 3};
+	dsa::DoublyLinkedList<int> orig{1, 2, 3};
 
-	dsa::LinkedList<int> copyConstructed(orig);
+	dsa::DoublyLinkedList<int> copyConstructed(orig);
 	assert(copyConstructed == orig);
 
-	dsa::LinkedList<int> copyAssigned;
+	dsa::DoublyLinkedList<int> copyAssigned;
 	copyAssigned = orig;
 	assert(copyAssigned == orig);
 
-	dsa::LinkedList<int> moveSrc{4, 5, 6};
-	dsa::LinkedList<int> moveConstructed(std::move(moveSrc));
+	dsa::DoublyLinkedList<int> moveSrc{4, 5, 6};
+	dsa::DoublyLinkedList<int> moveConstructed(std::move(moveSrc));
 	assert(moveConstructed.getSize() == 3);
 	assert(moveConstructed.front() == 4);
 	assert(moveSrc.empty());
 
-	dsa::LinkedList<int> moveDst;
+	dsa::DoublyLinkedList<int> moveDst;
 	moveDst = std::move(moveConstructed);
 	assert(moveDst.getSize() == 3);
 	assert(moveDst.front() == 4);
@@ -117,7 +117,7 @@ void testCopyAndMoveSemantics()
 
 void testIteratorsAndOperators()
 {
-	dsa::LinkedList<Point> points{{10, 20}, {30, 40}};
+	dsa::DoublyLinkedList<Point> points{{10, 20}, {30, 40}};
 
 	auto it = points.begin();
 	assert(it->x == 10 && it->y == 20);
@@ -126,7 +126,7 @@ void testIteratorsAndOperators()
 	assert(oldIt->x == 10);
 	assert(it->x == 30);
 
-	dsa::LinkedList<int> list{10, 20, 30, 40};
+	dsa::DoublyLinkedList<int> list{10, 20, 30, 40};
 
 	int expected = 10;
 	for (auto iter = list.begin(); iter != list.end(); ++iter) {
@@ -148,13 +148,13 @@ void testIteratorsAndOperators()
 	assert(list.back() == 80);
 
 	// implicit conversion from mutable to const iterator
-	dsa::LinkedList<int>::ConstIterator cit = list.begin();
+	dsa::DoublyLinkedList<int>::ConstIterator cit = list.begin();
 	assert(*cit == 20);
 }
 
 void testReverseIterators()
 {
-	dsa::LinkedList<int> list{1, 2, 3, 4};
+	dsa::DoublyLinkedList<int> list{1, 2, 3, 4};
 
 	int expected = 4;
 	for (auto rit = list.rbegin(); rit != list.rend(); ++rit) {
@@ -162,7 +162,7 @@ void testReverseIterators()
 		--expected;
 	}
 
-	const dsa::LinkedList<int> constList{10, 20};
+	const dsa::DoublyLinkedList<int> constList{10, 20};
 	auto crit = constList.crbegin();
 	assert(*crit == 20);
 	++crit;
@@ -171,10 +171,10 @@ void testReverseIterators()
 
 void testComparisons()
 {
-	dsa::LinkedList<int> a{1, 2, 3};
-	dsa::LinkedList<int> b{1, 2, 3};
-	dsa::LinkedList<int> c{1, 2, 4};
-	dsa::LinkedList<int> d{1, 2};
+	dsa::DoublyLinkedList<int> a{1, 2, 3};
+	dsa::DoublyLinkedList<int> b{1, 2, 3};
+	dsa::DoublyLinkedList<int> c{1, 2, 4};
+	dsa::DoublyLinkedList<int> d{1, 2};
 
 	assert(a == b);
 	assert(a != c);
@@ -185,7 +185,7 @@ void testComparisons()
 
 void testMoveOnlyTypes()
 {
-	dsa::LinkedList<std::unique_ptr<int>> list;
+	dsa::DoublyLinkedList<std::unique_ptr<int>> list;
 
 	list.pushBack(std::make_unique<int>(10));
 	list.emplaceFront(std::make_unique<int>(5));
@@ -200,8 +200,8 @@ void testMoveOnlyTypes()
 
 void testClearAndSwap()
 {
-	dsa::LinkedList<int> list1{1, 2, 3};
-	dsa::LinkedList<int> list2{10, 20};
+	dsa::DoublyLinkedList<int> list1{1, 2, 3};
+	dsa::DoublyLinkedList<int> list2{10, 20};
 
 	list1.swap(list2);
 	assert(list1.getSize() == 2 && list1.front() == 10);
