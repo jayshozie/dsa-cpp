@@ -110,8 +110,7 @@ public:
 		count(std::exchange(rhs.count, 0)),
 		capacity(std::exchange(rhs.capacity, 1)),
 		items(std::move(rhs.items))
-	{
-	}
+	{}
 
 	// move assignment operator
 	DynamicArray &operator=(DynamicArray &&rhs) noexcept

@@ -42,8 +42,7 @@ private:
 			data(std::forward<Args>(args)...),
 			next(nextPtr),
 			prev(prevPtr)
-		{
-		}
+		{}
 	};
 
 	Node *head_{nullptr};
@@ -73,8 +72,7 @@ private:
 		explicit IteratorImpl(NodePtr node, NodePtr tail = nullptr) :
 			current_(node),
 			tail_(tail)
-		{
-		}
+		{}
 
 		// allows implicit conversion from mutable to const iterator
 		template <bool OtherIsConst>
@@ -82,8 +80,7 @@ private:
 		IteratorImpl(const IteratorImpl<OtherIsConst> &other) :
 			current_(other.current_),
 			tail_(other.tail_)
-		{
-		}
+		{}
 
 		reference operator*() const
 		{
@@ -170,8 +167,7 @@ public:
 		head_(std::exchange(other.head_, nullptr)),
 		tail_(std::exchange(other.tail_, nullptr)),
 		size_(std::exchange(other.size_, 0))
-	{
-	}
+	{}
 
 	LinkedList &operator=(LinkedList &&other) noexcept
 	{
