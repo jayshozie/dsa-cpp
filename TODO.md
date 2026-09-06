@@ -27,22 +27,25 @@ implemented.
 
 # 1. Linear Data Structures
 
-- [ ] Dynamic Array
+- [x] Fixed-Sized Array
+    - [x] Compile-Time Fixed-Sized Array
+    - [x] Runtime Fixed-Sized Array
+- [x] Dynamic Array
 - [ ] Linked Lists
     - [ ] Singly Linked
         - [ ] Regular
         - [ ] Circular
     - [ ] Doubly Linked
-        - [ ] Regular
+        - [x] Regular
         - [ ] Circular
     - [ ] Intrusive Linked List
 - [ ] Stack
-    - [ ] Array-based
+    - [x] Array-based
     - [ ] Linked List-based
 - [ ] Queue
     - [ ] Array-based
-    - [ ] Linked List-based
-- [ ] Circular Buffer (Ring Buffer)
+    - [x] Linked List-based
+- [x] Circular Buffer (Ring Buffer)
 - [ ] Lock-Free Ring Buffer (Single-Producer, Single-Consumer using
 `std::atomic`)
 - [ ] Double-Ended Queue (Deque)
