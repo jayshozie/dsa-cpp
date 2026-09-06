@@ -1,6 +1,6 @@
 // dsa-cpp - an implementation of some data structures and algorithms in C++.
-// copyright (C) 2026 Emir Baha YILDIRIM <jayshozie@gmail.com>
-// copyright (C) 2026 terra2o <terra2o@protonmail.com>
+// copyright (C)  2026  Emir Baha Yıldırım <jayshozie@gmail.com>
+// copyright (C)  2026  terra2o <terra2o@protonmail.com>
 //
 // this program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
