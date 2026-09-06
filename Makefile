@@ -1,6 +1,6 @@
 .DEFAULT_GOAL = release
 # dsa-cpp - An implementation of some data structures and algorithms in C++.
-# Copyright (C)  2026  Emir Baha YILDIRIM <jayshozie@gmail.com>
+# Copyright (C)  2026  Emir Baha Yıldırım <jayshozie@gmail.com>
 # Copyright (C)  2026  terra2o <terra2o@protonmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
