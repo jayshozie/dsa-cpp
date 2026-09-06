@@ -18,24 +18,24 @@ module;
 
 #include <cstddef>
 #include <utility>
-export module dsa.linear.Queue;
-import dsa.linear.LinkedList;
+export module dsa.linear.ListQueue;
+import dsa.linear.DoublyLinkedList;
 
 export namespace dsa
 {
 
 template <typename T>
-class Queue {
+class ListQueue {
 private:
-	dsa::LinkedList<T> items;
+	dsa::DoublyLinkedList<T> items;
 
 public:
-	Queue() = default;
-	~Queue() = default;
-	Queue(const Queue &) = default;
-	Queue &operator=(const Queue &) = default;
-	Queue(Queue &&) noexcept = default;
-	Queue &operator=(Queue &&) noexcept = default;
+	ListQueue() = default;
+	~ListQueue() = default;
+	ListQueue(const ListQueue &) = default;
+	ListQueue &operator=(const ListQueue &) = default;
+	ListQueue(ListQueue &&) noexcept = default;
+	ListQueue &operator=(ListQueue &&) noexcept = default;
 
 	void push(const T &value)
 	{

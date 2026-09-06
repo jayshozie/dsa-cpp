@@ -20,26 +20,27 @@ module;
 #include <memory>
 #include <stdexcept>
 #include <utility>
-export module dsa.linear.RTFixedArray;
+export module dsa.linear.HeapArray;
 
 export namespace dsa
 {
+
 template <typename T>
-class RTFixedArray {
+class HeapArray {
 private:
 	std::unique_ptr<T[]> items;
 	std::size_t capacity;
 
 public:
 	// Runtime Sized Fixed Array
-	RTFixedArray(std::size_t capacity) :
+	HeapArray(std::size_t capacity) :
 		capacity(capacity),
 		items(std::make_unique<T[]>(capacity))
 	{}
-	~RTFixedArray() = default;
+	~HeapArray() = default;
 
 	// copy constructor: needed because of smart pointers
-	RTFixedArray(const RTFixedArray &rhs) :
+	HeapArray(const HeapArray &rhs) :
 		capacity(rhs.capacity),
 		items(std::make_unique<T[]>(rhs.capacity))
 	{
@@ -49,25 +50,25 @@ public:
 	}
 
 	// copy assignment operator: needed because of smart pointers
-	RTFixedArray &operator=(const RTFixedArray &rhs)
+	HeapArray &operator=(const HeapArray &rhs)
 	{
 		if (this == &rhs) { // self-assignment
 			return *this;
 		}
-		RTFixedArray tmp(rhs);
+		HeapArray tmp(rhs);
 		std::swap(this->capacity, tmp.capacity);
 		std::swap(this->items, tmp.items);
 		return *this;
 	}
 
 	// move constructor
-	RTFixedArray(RTFixedArray &&rhs) noexcept :
+	HeapArray(HeapArray &&rhs) noexcept :
 		capacity(std::exchange(rhs.capacity, 0)),
 		items(std::move(rhs.items))
 	{}
 
 	// move assignment operator
-	RTFixedArray &operator=(RTFixedArray &&rhs) noexcept
+	HeapArray &operator=(HeapArray &&rhs) noexcept
 	{
 		if (this == &rhs) { // self-assignment
 			return *this;

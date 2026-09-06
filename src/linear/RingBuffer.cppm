@@ -20,7 +20,7 @@ module;
 #include <stdexcept>
 #include <utility>
 export module dsa.linear.RingBuffer;
-import dsa.linear.CTFixedArray;
+import dsa.linear.StaticArray;
 
 export namespace dsa
 {
@@ -30,7 +30,7 @@ class RingBuffer {
 private:
 	static_assert(((Capacity > 0) && ((Capacity & (Capacity - 1)) == 0)),
 				  "Ring Buffer capacity must be a power of 2.");
-	dsa::CTFixedArray<T, Capacity> buffer;
+	dsa::StaticArray<T, Capacity> buffer;
 	std::size_t head = 0;
 	std::size_t tail = 0;
 

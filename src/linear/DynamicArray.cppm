@@ -27,6 +27,7 @@ export module dsa.linear.DynamicArray;
 
 export namespace dsa
 {
+
 template <typename T>
 class DynamicArray {
 private:

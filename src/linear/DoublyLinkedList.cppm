@@ -24,13 +24,13 @@ module;
 #include <type_traits>
 #include <utility>
 
-export module dsa.linear.LinkedList;
+export module dsa.linear.DoublyLinkedList;
 
 export namespace dsa
 {
 
 template <typename T>
-class LinkedList {
+class DoublyLinkedList {
 private:
 	struct Node {
 		T data;
@@ -135,48 +135,48 @@ public:
 	using ReverseIterator = std::reverse_iterator<Iterator>;
 	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 
-	LinkedList() = default;
+	DoublyLinkedList() = default;
 
-	LinkedList(std::initializer_list<T> list)
+	DoublyLinkedList(std::initializer_list<T> list)
 	{
 		for (const auto &item : list) {
 			pushBack(item);
 		}
 	}
 
-	~LinkedList()
+	~DoublyLinkedList()
 	{
 		clear();
 	}
 
-	LinkedList(const LinkedList &other)
+	DoublyLinkedList(const DoublyLinkedList &other)
 	{
 		copyFrom(other);
 	}
 
-	LinkedList &operator=(const LinkedList &other)
+	DoublyLinkedList &operator=(const DoublyLinkedList &other)
 	{
 		if (this != &other) {
-			LinkedList temp(other);
+			DoublyLinkedList temp(other);
 			swap(temp);
 		}
 		return *this;
 	}
 
-	LinkedList(LinkedList &&other) noexcept :
+	DoublyLinkedList(DoublyLinkedList &&other) noexcept :
 		head_(std::exchange(other.head_, nullptr)),
 		tail_(std::exchange(other.tail_, nullptr)),
 		size_(std::exchange(other.size_, 0))
 	{}
 
-	LinkedList &operator=(LinkedList &&other) noexcept
+	DoublyLinkedList &operator=(DoublyLinkedList &&other) noexcept
 	{
-		LinkedList temp(std::move(other));
+		DoublyLinkedList temp(std::move(other));
 		swap(temp);
 		return *this;
 	}
 
-	[[nodiscard]] auto operator<=>(const LinkedList &rhs) const
+	[[nodiscard]] auto operator<=>(const DoublyLinkedList &rhs) const
 		requires std::three_way_comparable<T>
 	{
 		auto it1 = begin();
@@ -193,7 +193,7 @@ public:
 		return size_ <=> rhs.size_;
 	}
 
-	[[nodiscard]] bool operator==(const LinkedList &rhs) const
+	[[nodiscard]] bool operator==(const DoublyLinkedList &rhs) const
 	{
 		if (size_ != rhs.size_) {
 			return false;
@@ -213,7 +213,7 @@ public:
 		return true;
 	}
 
-	void swap(LinkedList &other) noexcept
+	void swap(DoublyLinkedList &other) noexcept
 	{
 		std::swap(head_, other.head_);
 		std::swap(tail_, other.tail_);
@@ -405,7 +405,7 @@ public:
 	}
 
 private:
-	void copyFrom(const LinkedList &other)
+	void copyFrom(const DoublyLinkedList &other)
 	{
 		try {
 			for (Node *curr = other.head_; curr != nullptr; curr = curr->next) {
