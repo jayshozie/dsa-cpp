@@ -7,17 +7,17 @@ STRUCTURES OR ALGORITHMS**
 Random Access iterators where applicable (e.g. Tree Traversals are implemented
 as iterators). Meaning, we need to implement `operator++`, `operator--`,
 `operator*`, etc. to be able to use stuff like:
-```c++
+```cpp
 for (int value : our_linked_list) {
 ```
 
 - **Template Constraints:** We need to constrain template parameters (e.g.,
 requiring `std::totally_ordered` for sorting algorithms). As in, we need to add
-```c++
+```cpp
 requires std::totally_ordered<T>
 ```
 to make sure something like
-```c++
+```cpp
 template <typename T> void QuickSort(T* array)
 ```
 can't accept anything that doesn't have `operator<` or `operator>`
@@ -33,7 +33,7 @@ implemented.
 - [x] Dynamic Array
 - [ ] Linked Lists
     - [ ] Singly Linked
-        - [ ] Regular
+        - [x] Regular
         - [ ] Circular
     - [ ] Doubly Linked
         - [x] Regular
