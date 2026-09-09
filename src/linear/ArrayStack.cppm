@@ -48,7 +48,7 @@ public:
     T pop()
     {
         if (this->isEmpty()) {
-            throw std::out_of_range("Cannot pop from an empty stack.");
+            throw std::underflow_error("Cannot pop from an empty stack.");
         }
         return this->container.popBack();
     }

@@ -97,13 +97,13 @@ void testPopOperationsAndExceptions()
 	try {
 		(void)list.popFront();
 		assert(false);
-	} catch (const std::out_of_range &) {
+	} catch (const std::underflow_error &) {
 	}
 
 	try {
 		(void)list.popBack();
 		assert(false);
-	} catch (const std::out_of_range &) {
+	} catch (const std::underflow_error &) {
 	}
 }
 
