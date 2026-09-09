@@ -93,16 +93,15 @@ public:
 	// copy assignment operator
 	DynamicArray &operator=(const DynamicArray &rhs)
 	{
-		if (this == &rhs) { // self-assignment
-			return *this;
+		if (this != &rhs) { // self-assignment
+			std::unique_ptr<T[]> tmp = std::make_unique<T[]>(rhs.capacity);
+			for (std::size_t i = 0; i < rhs.count; i++) {
+				tmp[i] = rhs.items[i];
+			}
+			this->count = rhs.count;
+			this->capacity = rhs.capacity;
+			std::swap(this->items, tmp);
 		}
-		std::unique_ptr<T[]> tmp = std::make_unique<T[]>(rhs.capacity);
-		for (std::size_t i = 0; i < rhs.count; i++) {
-			tmp[i] = rhs.items[i];
-		}
-		this->count = rhs.count;
-		this->capacity = rhs.capacity;
-		std::swap(this->items, tmp);
 		return *this;
 	}
 
@@ -116,12 +115,11 @@ public:
 	// move assignment operator
 	DynamicArray &operator=(DynamicArray &&rhs) noexcept
 	{
-		if (this == &rhs) { // self-assignment
-			return *this;
+		if (this != &rhs) { // self-assignment
+			this->count = std::exchange(rhs.count, 0);
+			this->capacity = std::exchange(rhs.capacity, 1);
+			this->items = std::move(rhs.items);
 		}
-		this->count = std::exchange(rhs.count, 0);
-		this->capacity = std::exchange(rhs.capacity, 1);
-		this->items = std::move(rhs.items);
 		return *this;
 	}
 
