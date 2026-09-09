@@ -57,6 +57,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 			add_executable(${TEST} ${DSA_TEST})
 			target_link_libraries(${TEST} PRIVATE dsa-cpp)
+			target_compile_options(${TEST} PRIVATE -g)
 			add_test(NAME ${TEST} COMMAND ${TEST})
 		endforeach()
 	endif()

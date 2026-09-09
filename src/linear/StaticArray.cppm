@@ -25,6 +25,7 @@ export namespace dsa
 template <typename T, std::size_t Capacity>
 class StaticArray {
 private:
+	static_assert(Capacity > 0, "Array capacity can't be zero.");
 	T items[Capacity]{};
 
 public:

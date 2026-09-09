@@ -287,7 +287,7 @@ public:
 	T popFront()
 	{
 		if (head_ == nullptr) [[unlikely]] {
-			throw std::out_of_range("popFront called on empty list");
+			throw std::underflow_error("popFront called on empty list");
 		}
 
 		Node *oldHead = head_;
@@ -309,7 +309,7 @@ public:
 	T popBack()
 	{
 		if (tail_ == nullptr) [[unlikely]] {
-			throw std::out_of_range("popBack called on empty list");
+			throw std::underflow_error("popBack called on empty list");
 		}
 
 		Node *oldTail = tail_;
