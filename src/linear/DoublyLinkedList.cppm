@@ -345,7 +345,7 @@ public:
 	{
 		return size_;
 	}
-	[[nodiscard]] bool empty() const noexcept
+	[[nodiscard]] bool isEmpty() const noexcept
 	{
 		return size_ == 0;
 	}
@@ -417,5 +417,4 @@ private:
 		}
 	}
 };
-
 } // namespace dsa
