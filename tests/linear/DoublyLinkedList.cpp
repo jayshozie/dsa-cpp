@@ -17,7 +17,7 @@ struct Point {
 void testDefaultConstructionAndCapacity()
 {
 	dsa::DoublyLinkedList<int> list;
-	assert(list.empty());
+	assert(list.isEmpty());
 	assert(list.getSize() == 0);
 	assert(list.begin() == list.end());
 }
@@ -25,7 +25,7 @@ void testDefaultConstructionAndCapacity()
 void testInitializerListAndAccess()
 {
 	dsa::DoublyLinkedList<int> list{10, 20, 30};
-	assert(!list.empty());
+	assert(!list.isEmpty());
 	assert(list.getSize() == 3);
 	assert(list.front() == 10);
 	assert(list.back() == 30);
@@ -76,7 +76,7 @@ void testPopOperationsAndExceptions()
 	assert(list.getSize() == 1);
 
 	assert(list.popFront() == 2);
-	assert(list.empty());
+	assert(list.isEmpty());
 
 	try {
 		(void)list.popFront();
@@ -106,13 +106,13 @@ void testCopyAndMoveSemantics()
 	dsa::DoublyLinkedList<int> moveConstructed(std::move(moveSrc));
 	assert(moveConstructed.getSize() == 3);
 	assert(moveConstructed.front() == 4);
-	assert(moveSrc.empty());
+	assert(moveSrc.isEmpty());
 
 	dsa::DoublyLinkedList<int> moveDst;
 	moveDst = std::move(moveConstructed);
 	assert(moveDst.getSize() == 3);
 	assert(moveDst.front() == 4);
-	assert(moveConstructed.empty());
+	assert(moveConstructed.isEmpty());
 }
 
 void testIteratorsAndOperators()
@@ -208,7 +208,7 @@ void testClearAndSwap()
 	assert(list2.getSize() == 3 && list2.front() == 1);
 
 	list1.clear();
-	assert(list1.empty());
+	assert(list1.isEmpty());
 	assert(list1.begin() == list1.end());
 }
 
