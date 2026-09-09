@@ -52,12 +52,11 @@ public:
 	// copy assignment operator: needed because of smart pointers
 	HeapArray &operator=(const HeapArray &rhs)
 	{
-		if (this == &rhs) { // self-assignment
-			return *this;
+		if (this != &rhs) { // self-assignment
+			HeapArray tmp(rhs);
+			std::swap(this->capacity, tmp.capacity);
+			std::swap(this->items, tmp.items);
 		}
-		HeapArray tmp(rhs);
-		std::swap(this->capacity, tmp.capacity);
-		std::swap(this->items, tmp.items);
 		return *this;
 	}
 
@@ -70,11 +69,10 @@ public:
 	// move assignment operator
 	HeapArray &operator=(HeapArray &&rhs) noexcept
 	{
-		if (this == &rhs) { // self-assignment
-			return *this;
+		if (this != &rhs) { // self-assignment
+			std::swap(this->capacity, rhs.capacity);
+			std::swap(this->items, rhs.items);
 		}
-		std::swap(this->capacity, rhs.capacity);
-		std::swap(this->items, rhs.items);
 		return *this;
 	}
 
