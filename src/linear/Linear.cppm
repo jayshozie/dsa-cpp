@@ -19,7 +19,10 @@ module;
 export module dsa.linear;
 
 export import dsa.linear.DynamicArray;
+export import dsa.linear.SinglyLinkedList;
+export import dsa.linear.CircularSinglyLinkedList;
 export import dsa.linear.DoublyLinkedList;
+export import dsa.linear.CircularDoublyLinkedList;
 export import dsa.linear.ListQueue;
 export import dsa.linear.ArrayStack;
 export import dsa.linear.StaticArray;

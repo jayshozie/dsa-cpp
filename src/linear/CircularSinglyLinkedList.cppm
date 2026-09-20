@@ -1,6 +1,5 @@
 // dsa-cpp - an implementation of some data structures and algorithms in C++.
 // Copyright (C)  2026  Emir Baha Yıldırım <jayshozie@gmail.com>
-// Copyright (C)  2026  terra2o <terra2o@protonmail.com>
 //
 // this program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,15 +17,14 @@ module;
 
 #include <cstddef>
 #include <iterator>
-#include <stdexcept>
 #include <utility>
-export module dsa.linear.SinglyLinkedList;
+export module dsa.linear.CircularSinglyLinkedList;
 
 export namespace dsa
 {
 
 template <typename T>
-class SinglyLinkedList {
+class CircularSinglyLinkedList {
 private:
 	struct Node {
 		T data;
@@ -45,6 +43,7 @@ private:
 	};
 
 	struct Iterator {
+		Node *start_node; // i don't think c++ would set it itself
 		Node *current;
 
 		using iterator_category = std::forward_iterator_tag;
@@ -59,7 +58,11 @@ private:
 		}
 		Iterator &operator++()
 		{
-			this->current = this->current->next;
+			if (this->current->next == this->start_node) {
+				this->current = nullptr;
+			} else {
+				this->current = this->current->next;
+			}
 			return *this;
 		}
 		friend bool operator==(const Iterator &lhs, const Iterator &rhs)
@@ -72,67 +75,61 @@ private:
 		}
 	};
 
-	Node *head = nullptr;
+	Node *tail = nullptr; // head is always tail->next
 	std::size_t size = 0;
 
 public:
-	// default constructor
-	SinglyLinkedList() = default;
-	// default destructor
-	~SinglyLinkedList()
+	CircularSinglyLinkedList() = default;
+	~CircularSinglyLinkedList()
 	{
 		this->clear();
 	}
-	// SinglyLinkedList(std::initializer_list<T> list)
-	// {
-	// 	// we need to reverse
-	// 	for (auto val : list) {
-	// 		this->pushFront(val);
-	// 	}
-	// }
 	// copy constructor
-	SinglyLinkedList(const SinglyLinkedList &rhs)
+	CircularSinglyLinkedList(const CircularSinglyLinkedList &rhs)
 	{
-		if (rhs.head == nullptr) {
+		if (rhs.isEmpty()) {
 			return;
 		}
-		this->head = new Node(rhs.head->data, nullptr);
-		Node *curr = this->head;
-		Node *next = rhs.head->next;
-		while (next != nullptr) {
-			Node *newNode = new Node(next->data, nullptr);
+		Node *rhsCurr = rhs.tail->next;
+		Node *newHead = new Node(rhsCurr->data, nullptr);
+		Node *curr = newHead;
+		rhsCurr = rhsCurr->next;
+		while (rhsCurr != rhs.tail->next) {
+			Node *newNode = new Node(rhsCurr->data, nullptr);
 			curr->next = newNode;
 			curr = newNode;
-			next = next->next;
+			rhsCurr = rhsCurr->next;
 		}
+		curr->next = newHead;
+		this->tail = curr;
 		this->size = rhs.size;
 	}
 	// copy assignment operator
-	SinglyLinkedList &operator=(const SinglyLinkedList &rhs)
+	CircularSinglyLinkedList &operator=(const CircularSinglyLinkedList &rhs)
 	{
 		if (this != &rhs) {
-			SinglyLinkedList tmp(rhs);
-			std::swap(this->head, tmp.head);
+			CircularSinglyLinkedList tmp(rhs);
+			std::swap(this->tail, tmp.tail);
 			std::swap(this->size, tmp.size);
 		}
 		return *this;
 	}
 	// move constructor
-	SinglyLinkedList(SinglyLinkedList &&rhs) noexcept :
-		head(rhs.head),
+	CircularSinglyLinkedList(CircularSinglyLinkedList &&rhs) noexcept :
+		tail(rhs.tail),
 		size(rhs.size)
 	{
-		rhs.head = nullptr;
+		rhs.tail = nullptr;
 		rhs.size = 0;
 	}
 	// move assignment operator
-	SinglyLinkedList &operator=(SinglyLinkedList &&rhs) noexcept
+	CircularSinglyLinkedList &operator=(CircularSinglyLinkedList &&rhs) noexcept
 	{
 		if (this != &rhs) {
 			this->clear();
-			this->head = rhs.head;
+			this->tail = rhs.tail;
 			this->size = rhs.size;
-			rhs.head = nullptr;
+			rhs.tail = nullptr;
 			rhs.size = 0;
 		}
 		return *this;
@@ -146,32 +143,56 @@ public:
 	{
 		return (this->size == 0);
 	}
-
 	T &front()
 	{
 		if (this->isEmpty()) {
 			throw std::out_of_range("List is empty.");
 		}
-		return this->head->data;
+		return (this->tail->next->data);
 	}
 	const T &front() const
 	{
 		if (this->isEmpty()) {
 			throw std::out_of_range("List is empty.");
 		}
-		return this->head->data;
+		return (this->tail->next->data);
 	}
-
+	T &back()
+	{
+		if (this->isEmpty()) {
+			throw std::out_of_range("List is empty.");
+		}
+		return (this->tail->data);
+	}
+	const T &back() const
+	{
+		if (this->isEmpty()) {
+			throw std::out_of_range("List is empty.");
+		}
+		return (this->tail->data);
+	}
 	void pushFront(const T &value)
 	{
-		Node *newNode = new Node(value, this->head);
-		this->head = newNode;
+		Node *newNode = new Node(value, nullptr);
+		if (this->isEmpty()) {
+			newNode->next = newNode;
+			this->tail = newNode;
+		} else {
+			newNode->next = this->tail->next;
+			this->tail->next = newNode;
+		}
 		this->size++;
 	}
 	void pushFront(T &&value)
 	{
-		Node *newNode = new Node(std::move(value), this->head);
-		this->head = newNode;
+		Node *newNode = new Node(std::move(value), nullptr);
+		if (this->isEmpty()) {
+			newNode->next = newNode;
+			this->tail = newNode;
+		} else {
+			newNode->next = this->tail->next;
+			this->tail->next = newNode;
+		}
 		this->size++;
 	}
 	T popFront()
@@ -179,37 +200,52 @@ public:
 		if (this->isEmpty()) {
 			throw std::underflow_error("Cannot pop from an empty list.");
 		}
-		T tmp = std::move(this->head->data);
-		Node *oldHead = this->head;
-		Node *newHead = oldHead->next;
-		this->head = newHead;
+		Node *oldHead = this->tail->next;
+		T tmp = std::move(oldHead->data);
+		if (this->size == 1) {
+			this->tail = nullptr;
+		} else {
+			Node *newHead = oldHead->next;
+			this->tail->next = newHead;
+		}
 		delete oldHead;
 		this->size--;
 		return tmp;
 	}
+
 	template <typename... Args>
 	void emplaceFront(Args &&...args)
 	{
-		Node *newNode = new Node(this->head, std::forward<Args>(args)...);
-		this->head = newNode;
+		Node *newNode = new Node(this->tail->next, std::forward<Args>(args)...);
+		if (this->isEmpty()) {
+			newNode->next = newNode;
+			this->tail = newNode;
+		} else {
+			newNode->next = this->tail->next;
+			this->tail->next = newNode;
+		}
 		this->size++;
 	}
 
 	void clear()
 	{
-		Node *curr = this->head;
-		while (curr != nullptr) {
-			Node *next = curr->next;
-			delete curr;
-			curr = next;
+		if (this->tail) {
+			Node *curr = this->tail->next;
+			this->tail->next = nullptr; // so that we don't fall into an inf
+										// loop
+			while (curr != nullptr) {
+				Node *next = curr->next;
+				delete curr;
+				curr = next;
+			}
+			this->tail = nullptr;
+			this->size = 0;
 		}
-		this->head = nullptr;
-		this->size = 0;
 	}
 
 	Iterator begin()
 	{
-		return Iterator{head};
+		return Iterator{this->tail->next, this->tail->next};
 	}
 	Iterator end()
 	{

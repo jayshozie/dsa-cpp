@@ -31,13 +31,13 @@ implemented.
     - [x] Compile-Time Fixed-Sized Array
     - [x] Runtime Fixed-Sized Array
 - [x] Dynamic Array
-- [ ] Linked Lists
-    - [ ] Singly Linked
+- [x] Linked Lists
+    - [x] Singly Linked
         - [x] Regular
-        - [ ] Circular
-    - [ ] Doubly Linked
+        - [x] Circular
+    - [x] Doubly Linked
         - [x] Regular
-        - [ ] Circular
+        - [x] Circular
     - [ ] Intrusive Linked List
 - [ ] Stack
     - [x] Array-based
