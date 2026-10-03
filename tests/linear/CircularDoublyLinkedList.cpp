@@ -1,0 +1,247 @@
+// dsa-cpp - An implementation of some data structures and algorithms in C++.
+// Copyright (C)  2026  Emir Baha Yıldırım <jayshozie@gmail.com>
+// Copyright (C)  2026  terra2o <terra2o@protonmail.com>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#include <string>
+#include <utility>
+#include <memory>
+#include <stdexcept>
+#include <cassert>
+
+import dsa.linear.CircularDoublyLinkedList;
+
+namespace
+{
+
+struct Point {
+	int x{0};
+	int y{0};
+};
+
+void testDefaultConstructionAndCapacity()
+{
+	dsa::CircularDoublyLinkedList<int> list;
+	assert(list.isEmpty());
+	assert(list.getSize() == 0);
+	assert(list.begin() == list.end());
+}
+
+void testInitializerListAndAccess()
+{
+	dsa::CircularDoublyLinkedList<int> list{10, 20, 30};
+	assert(!list.isEmpty());
+	assert(list.getSize() == 3);
+	assert(list.front() == 10);
+	assert(list.back() == 30);
+
+	list.front() = 15;
+	list.back() = 35;
+	assert(list.front() == 15);
+	assert(list.back() == 35);
+
+	const dsa::CircularDoublyLinkedList<int> constList{1, 2, 3};
+	assert(constList.front() == 1);
+	assert(constList.back() == 3);
+}
+
+void testPushAndEmplace()
+{
+	dsa::CircularDoublyLinkedList<std::string> list;
+
+	list.pushBack("world");
+	list.pushFront("hello");
+	assert(list.getSize() == 2);
+	assert(list.front() == "hello");
+	assert(list.back() == "world");
+
+	std::string s1 = "foo";
+	std::string s2 = "bar";
+	list.pushFront(std::move(s1));
+	list.pushBack(std::move(s2));
+	assert(list.front() == "foo");
+	assert(list.back() == "bar");
+	assert(list.getSize() == 4);
+
+	list.emplaceFront("first");
+	list.emplaceBack("last");
+	assert(list.front() == "first");
+	assert(list.back() == "last");
+	assert(list.getSize() == 6);
+}
+
+void testPopOperationsAndExceptions()
+{
+	dsa::CircularDoublyLinkedList<int> list{1, 2, 3};
+
+	assert(list.popFront() == 1);
+	assert(list.getSize() == 2);
+
+	assert(list.popBack() == 3);
+	assert(list.getSize() == 1);
+
+	assert(list.popFront() == 2);
+	assert(list.isEmpty());
+
+	try {
+		(void)list.popFront();
+		assert(false);
+	} catch (const std::underflow_error &) {
+	}
+
+	try {
+		(void)list.popBack();
+		assert(false);
+	} catch (const std::underflow_error &) {
+	}
+}
+
+void testCopyAndMoveSemantics()
+{
+	dsa::CircularDoublyLinkedList<int> orig{1, 2, 3};
+
+	dsa::CircularDoublyLinkedList<int> copyConstructed(orig);
+	assert(copyConstructed == orig);
+
+	dsa::CircularDoublyLinkedList<int> copyAssigned;
+	copyAssigned = orig;
+	assert(copyAssigned == orig);
+
+	dsa::CircularDoublyLinkedList<int> moveSrc{4, 5, 6};
+	dsa::CircularDoublyLinkedList<int> moveConstructed(std::move(moveSrc));
+	assert(moveConstructed.getSize() == 3);
+	assert(moveConstructed.front() == 4);
+	assert(moveSrc.isEmpty());
+
+	dsa::CircularDoublyLinkedList<int> moveDst;
+	moveDst = std::move(moveConstructed);
+	assert(moveDst.getSize() == 3);
+	assert(moveDst.front() == 4);
+	assert(moveConstructed.isEmpty());
+}
+
+void testIteratorsAndOperators()
+{
+	dsa::CircularDoublyLinkedList<Point> points{{10, 20}, {30, 40}};
+
+	auto it = points.begin();
+	assert(it->x == 10 && it->y == 20);
+
+	auto oldIt = it++;
+	assert(oldIt->x == 10);
+	assert(it->x == 30);
+
+	dsa::CircularDoublyLinkedList<int> list{10, 20, 30, 40};
+
+	int expected = 10;
+	for (auto iter = list.begin(); iter != list.end(); ++iter) {
+		assert(*iter == expected);
+		expected += 10;
+	}
+
+	// verifying --end() steps back to tail node
+	auto endIt = list.end();
+	--endIt;
+	assert(*endIt == 40);
+	endIt--;
+	assert(*endIt == 30);
+
+	for (auto &val : list) {
+		val *= 2;
+	}
+	assert(list.front() == 20);
+	assert(list.back() == 80);
+
+	// implicit conversion from mutable to const iterator
+	dsa::CircularDoublyLinkedList<int>::ConstIterator cit = list.begin();
+	assert(*cit == 20);
+}
+
+void testReverseIterators()
+{
+	dsa::CircularDoublyLinkedList<int> list{1, 2, 3, 4};
+
+	int expected = 4;
+	for (auto rit = list.rbegin(); rit != list.rend(); ++rit) {
+		assert(*rit == expected);
+		--expected;
+	}
+
+	const dsa::CircularDoublyLinkedList<int> constList{10, 20};
+	auto crit = constList.crbegin();
+	assert(*crit == 20);
+	++crit;
+	assert(*crit == 10);
+}
+
+void testComparisons()
+{
+	dsa::CircularDoublyLinkedList<int> a{1, 2, 3};
+	dsa::CircularDoublyLinkedList<int> b{1, 2, 3};
+	dsa::CircularDoublyLinkedList<int> c{1, 2, 4};
+	dsa::CircularDoublyLinkedList<int> d{1, 2};
+
+	assert(a == b);
+	assert(a != c);
+	assert((a <=> b) == 0);
+	assert((a <=> c) < 0);
+	assert((a <=> d) > 0);
+}
+
+void testMoveOnlyTypes()
+{
+	dsa::CircularDoublyLinkedList<std::unique_ptr<int>> list;
+
+	list.pushBack(std::make_unique<int>(10));
+	list.emplaceFront(std::make_unique<int>(5));
+
+	assert(*list.front() == 5);
+	assert(*list.back() == 10);
+
+	auto ptr = list.popFront();
+	assert(*ptr == 5);
+	assert(list.getSize() == 1);
+}
+
+void testClearAndSwap()
+{
+	dsa::CircularDoublyLinkedList<int> list1{1, 2, 3};
+	dsa::CircularDoublyLinkedList<int> list2{10, 20};
+
+	list1.swap(list2);
+	assert(list1.getSize() == 2 && list1.front() == 10);
+	assert(list2.getSize() == 3 && list2.front() == 1);
+
+	list1.clear();
+	assert(list1.isEmpty());
+	assert(list1.begin() == list1.end());
+}
+
+} // namespace
+
+int main()
+{
+	testDefaultConstructionAndCapacity();
+	testInitializerListAndAccess();
+	testPushAndEmplace();
+	testPopOperationsAndExceptions();
+	testCopyAndMoveSemantics();
+	testIteratorsAndOperators();
+	testReverseIterators();
+	testComparisons();
+	testMoveOnlyTypes();
+	testClearAndSwap();
+
+	return 0;
+}
